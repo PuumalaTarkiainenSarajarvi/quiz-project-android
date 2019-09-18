@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Quiz Project</string>
+    <string name="button_play">Play</string>
+    <string name="button_scores">High Scores</string>
+</resources>
