@@ -15,9 +15,9 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="TextView"
+            android:text="@string/placeholder_text"
             android:textAlignment="center"
-            android:textSize="24dp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/textViewListItem2"
@@ -25,9 +25,9 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="TextView"
+            android:text="@string/placeholder_text"
             android:textAlignment="center"
-            android:textSize="24dp" />
+            android:textSize="24sp" />
 
     </LinearLayout>
 

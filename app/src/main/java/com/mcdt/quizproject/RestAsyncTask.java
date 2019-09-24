@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 public class RestAsyncTask
 {
-    private OnRequestProgressUpdate m_callBack;
+    private OnRequestProgressUpdate m_callback;
     private RequestQueue m_queue;
 
     interface OnRequestProgressUpdate
@@ -22,8 +22,8 @@ public class RestAsyncTask
         void requestDone(JSONObject response);
     }
 
-    public void setCallBack(OnRequestProgressUpdate callBack) {
-        m_callBack = callBack;
+    public void setCallback(OnRequestProgressUpdate callback) {
+        m_callback = callback;
     }
 
     public RestAsyncTask(Context context) {
@@ -36,8 +36,8 @@ public class RestAsyncTask
                 (Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        if (m_callBack != null) {
-                            m_callBack.requestDone(response);
+                        if (m_callback != null) {
+                            m_callback.requestDone(response);
                         }
                     }
                 }, new Response.ErrorListener() {
