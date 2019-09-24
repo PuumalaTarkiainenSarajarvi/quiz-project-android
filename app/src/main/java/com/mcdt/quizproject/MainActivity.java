@@ -2,6 +2,7 @@ package com.mcdt.quizproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -26,9 +27,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v == m_buttonPlay) {
-
+            startGameSessionActivity();
         } else if (v == m_buttonScores) {
 
         }
+    }
+
+    public void startGameSessionActivity() {
+        Intent intent = new Intent(this, GameSessionActivity.class);
+        startActivity(intent);
     }
 }
