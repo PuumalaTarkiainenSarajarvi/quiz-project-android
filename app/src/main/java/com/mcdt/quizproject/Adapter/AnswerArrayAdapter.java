@@ -7,11 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.mcdt.quizproject.Model.HighScore;
-import com.mcdt.quizproject.Model.Question;
 import com.mcdt.quizproject.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -22,7 +19,7 @@ public class AnswerArrayAdapter extends ArrayAdapter<String>
     private Context m_context;
     private List<String> m_answers;
 
-    public AnswerArrayAdapter(@NonNull Context context, ArrayList<String> list) {
+    public AnswerArrayAdapter(@NonNull Context context, List<String> list) {
         super(context, 0 , list);
         m_context = context;
         m_answers = list;

@@ -3,5 +3,14 @@
     <string name="app_name">Quiz Project</string>
     <string name="button_play">Play</string>
     <string name="button_scores">High Scores</string>
-    <string name="current_score">Current score:</string>
+
+    <string name="current_score">Current score: %d</string>
+    <string name="difficulty">Difficulty: %s</string>
+    <string name="category">Category: %s</string>
+
+    <string name="hint_nickname">Nickname</string>
+    <string name="hint_email">Email</string>
+    <string name="button_submit">Submit</string>
+
+    <string name="game_over">Game Over!</string>
 </resources>

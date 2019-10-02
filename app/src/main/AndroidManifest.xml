@@ -9,6 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".HighScoreActivity"></activity>
+        <activity android:name=".CredentialsActivity" />
         <activity android:name=".GameSessionActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -18,5 +20,7 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

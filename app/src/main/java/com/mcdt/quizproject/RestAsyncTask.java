@@ -3,7 +3,7 @@ package com.mcdt.quizproject;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.Request;
+import com.android.volley.AuthFailureError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -12,6 +12,10 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 public class RestAsyncTask
 {
     private OnRequestProgressUpdate m_callback;
@@ -19,25 +23,26 @@ public class RestAsyncTask
 
     interface OnRequestProgressUpdate
     {
-        void requestDone(JSONObject response);
+        void requestDone(final String requestId, JSONObject response);
     }
 
-    public void setCallback(OnRequestProgressUpdate callback) {
+    public void setCallback(final OnRequestProgressUpdate callback) {
         m_callback = callback;
     }
 
-    public RestAsyncTask(Context context) {
+    public RestAsyncTask(final Context context, final OnRequestProgressUpdate callback) {
         m_queue = Volley.newRequestQueue(context);
+        m_callback = callback;
     }
 
-    public void getRandomQuestion() {
-        String requestUrl = Constants.API_BASE_URL + Constants.API_GET_RANDOM_QUESTION;
+    public void addRequestToQueue(final String baseUrl, final String requestId, final int method) {
+        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
+                (method, baseUrl + requestId, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (m_callback != null) {
-                            m_callback.requestDone(response);
+                            m_callback.requestDone(requestId, response);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -46,6 +51,64 @@ public class RestAsyncTask
                         Log.d("VOLLEY", "onErrorResponse: " + error);
                     }
                 });
+        m_queue.add(jsonObjectRequest);
+    }
+
+    public void addRequestToQueue(final String baseUrl, final String requestId, final int method
+            , final String sessionId) {
+        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (method, baseUrl + requestId, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (m_callback != null) {
+                            m_callback.requestDone(requestId, response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("VOLLEY", "onErrorResponse: " + error);
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        HashMap<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", sessionId);
+                        return headers;
+                    }
+                };
+        m_queue.add(jsonObjectRequest);
+    }
+
+    public void addRequestToQueue(final String baseUrl, final String requestId, final int method
+            , final String requestBody, final String sessionId) {
+        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (method, baseUrl + requestId, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (m_callback != null) {
+                            m_callback.requestDone(requestId, response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("VOLLEY", "onErrorResponse: " + error);
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", sessionId);
+                return headers;
+            }
+            @Override
+            public byte[] getBody() {
+                return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+            }
+        };
         m_queue.add(jsonObjectRequest);
     }
 }
