@@ -1,9 +1,11 @@
 package com.mcdt.quizproject;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import com.android.volley.Request;
+import com.mcdt.quizproject.Model.HighScore;
 import com.mcdt.quizproject.Model.Question;
 
 import org.json.JSONArray;
@@ -11,10 +13,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Engine implements RestAsyncTask.OnRequestProgressUpdate
 {
+    private static final int INITIAL_GAME_TIME = 60;
+
     // API endpoints declaration
     private static final String API_BASE_URL = "http://10.0.2.2:5000";
     private static final String GET_RANDOM_QUESTION = "/api/get_random_question";
@@ -27,8 +35,11 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     private static Context m_context;
     private EngineInterface m_callback;
 
+    private Timer m_timer = null;
+
     private String m_sessionId = null;
     private int m_playerScore;
+    private int m_gameTimeLeft;
 
     private Engine() {}
 
@@ -42,6 +53,8 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     }
 
     public static void resetInstance() {
+        if (getInstance(m_context).m_timer != null)
+            getInstance(m_context).m_timer.cancel();
         m_instance = null;
     }
 
@@ -51,10 +64,12 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
 
     public interface EngineInterface
     {
+        void onGameTimerTick(final boolean finished, final int relativeProgress);
         void onParseResponseStartGameSession(final String sessionId);
         void onParseResponseGetRandomQuestion(final Question question);
         void onParseResponseCheckCorrectAnswer(final boolean status, final int currentScore);
         void onParseResponsePostHighScoreInfo();
+        void onParseResponseGetAllHighScores(final List<HighScore> highScores);
     }
 
     public int getPlayerScore() {
@@ -64,8 +79,38 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     public void startGameSession() {
         Log.d("ENGINE", "startGameSession: called");
         RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
-        restAsyncTask.addRequestToQueue(
+        restAsyncTask.addObjectRequestToQueue(
                 API_BASE_URL, START_GAME_SESSION, Request.Method.POST);
+    }
+
+    public void startGameTimer() {
+        m_gameTimeLeft = INITIAL_GAME_TIME;
+
+        final Handler handler = new Handler();
+        m_timer = new Timer(false);
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        m_gameTimeLeft--;
+                        // set progress as percentage
+                        float relativeProgress = (float) m_gameTimeLeft
+                                / (float) INITIAL_GAME_TIME * 100.f;
+
+                        m_callback.onGameTimerTick(false, (int) relativeProgress);
+
+                        if (m_gameTimeLeft <= 0) {
+                            m_callback.onGameTimerTick(true, (int) relativeProgress);
+                            m_timer.cancel();
+                        }
+                    }
+                });
+            }
+        };
+        m_timer.schedule(timerTask, 1000, 1000);
     }
 
     public void parseResponseStartGameSession(final JSONObject response) {
@@ -80,7 +125,7 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     public void getRandomQuestion() {
         Log.d("ENGINE", "getRandomQuestion: called");
         RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
-        restAsyncTask.addRequestToQueue(
+        restAsyncTask.addObjectRequestToQueue(
                 API_BASE_URL, GET_RANDOM_QUESTION, Request.Method.GET, m_sessionId);
     }
 
@@ -114,7 +159,7 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
         final String requestBody = jsonObject.toString();
 
         RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
-        restAsyncTask.addRequestToQueue(
+        restAsyncTask.addObjectRequestToQueue(
                 API_BASE_URL, CHECK_CORRECT_ANSWER, Request.Method.POST, requestBody, m_sessionId);
     }
 
@@ -142,12 +187,44 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
         final String requestBody = jsonObject.toString();
 
         RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
-        restAsyncTask.addRequestToQueue(
+        restAsyncTask.addObjectRequestToQueue(
                 API_BASE_URL, POST_HIGH_SCORE_INFO, Request.Method.POST, requestBody, m_sessionId);
     }
 
     public void parseResponsePostHighScoreInfo(final JSONObject response) {
         m_callback.onParseResponsePostHighScoreInfo();
+    }
+
+    public void getAllHighScores() {
+        Log.d("ENGINE", "getAllHighScores: called");
+        RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
+        restAsyncTask.addArrayRequestToQueue(
+                API_BASE_URL, GET_ALL_HIGH_SCORES, Request.Method.GET);
+    }
+
+    public void parseResponseGetAllHighScores(final JSONArray response) {
+        try {
+            List<HighScore> highScores = new ArrayList<>();
+            for (int i = 0; i < response.length(); ++i) {
+                JSONObject child = response.getJSONObject(i);
+                HighScore tempScore = new HighScore(
+                        String.valueOf(i) + ".",
+                        child.getString("nickname"),
+                        child.getString("score"));
+
+                highScores.add(tempScore);
+            }
+            Collections.sort(highScores, new Comparator<HighScore>() {
+                @Override
+                public int compare(HighScore h1, HighScore h2) {
+                    return Integer.valueOf(h2.getItems().get(2))
+                            .compareTo(Integer.valueOf(h1.getItems().get(2)));
+                }
+            });
+            m_callback.onParseResponseGetAllHighScores(highScores);
+        } catch (final JSONException e) {
+            Log.e("JSON", "JSON parsing error: " + e.getMessage());
+        }
     }
 
     @Override
@@ -166,6 +243,17 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
             case POST_HIGH_SCORE_INFO:
                 parseResponsePostHighScoreInfo(response);
                 break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void requestDone(final String requestId, JSONArray response) {
+        Log.d("VOLLEY", "requestDone: " + response.toString());
+        switch (requestId) {
+            case GET_ALL_HIGH_SCORES:
+                parseResponseGetAllHighScores(response);
             default:
                 break;
         }

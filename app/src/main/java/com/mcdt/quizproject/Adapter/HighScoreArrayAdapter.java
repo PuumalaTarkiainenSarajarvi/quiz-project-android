@@ -21,7 +21,7 @@ public class HighScoreArrayAdapter extends ArrayAdapter<HighScore>
     private Context m_context;
     private List<HighScore> m_highScores;
 
-    public HighScoreArrayAdapter(@NonNull Context context, ArrayList<HighScore> list) {
+    public HighScoreArrayAdapter(@NonNull Context context, List<HighScore> list) {
         super(context, 0 , list);
         m_context = context;
         m_highScores = list;
@@ -44,6 +44,9 @@ public class HighScoreArrayAdapter extends ArrayAdapter<HighScore>
 
         final TextView textViewListItem2 = listItem.findViewById(R.id.textViewListItem2);
         textViewListItem2.setText(highScore.getItems().get(1));
+
+        final TextView textViewListItem3 = listItem.findViewById(R.id.textViewListItem3);
+        textViewListItem3.setText(highScore.getItems().get(2));
 
         return listItem;
     }

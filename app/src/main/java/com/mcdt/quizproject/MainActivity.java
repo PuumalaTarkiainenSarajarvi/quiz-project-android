@@ -8,7 +8,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.mcdt.quizproject.Model.HighScore;
 import com.mcdt.quizproject.Model.Question;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, Engine.EngineInterface
 {
@@ -44,13 +47,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v == m_buttonPlay) {
             m_engine.startGameSession();
         } else if (v == m_buttonScores) {
-
+            startHighScoreActivity();
         }
     }
 
     public void startGameSessionActivity() {
         Intent intent = new Intent(this, GameSessionActivity.class);
         startActivity(intent);
+    }
+
+    public void startHighScoreActivity() {
+        Intent intent = new Intent(this, HighScoreActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onGameTimerTick(boolean finished, int relativeProgress) {
+        // unused
     }
 
     @Override
@@ -80,6 +93,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onParseResponsePostHighScoreInfo() {
+        // unused
+    }
 
+    @Override
+    public void onParseResponseGetAllHighScores(final List<HighScore> highScores) {
+        // unused
     }
 }

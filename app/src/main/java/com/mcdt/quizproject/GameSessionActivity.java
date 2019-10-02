@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -13,20 +12,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mcdt.quizproject.Adapter.AnswerArrayAdapter;
+import com.mcdt.quizproject.Model.HighScore;
 import com.mcdt.quizproject.Model.Question;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.List;
 
 public class GameSessionActivity extends AppCompatActivity implements Engine.EngineInterface
 {
-    private static final int INITIAL_GAME_TIME = 60;
     private static final int CREDENTIALS_REQUEST_CODE = 1;
 
     private Engine m_engine;
     private AnswerArrayAdapter m_adapter;
 
-    private int m_gameTimeLeft;
     private Question m_currentQuestion = null;
 
     private ProgressBar m_progressBarGameTime;
@@ -49,11 +46,11 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
         m_listViewAnswers = findViewById(R.id.listViewAnswers);
 
         m_textViewCurrentScore.setText(String.format(getString(R.string.current_score), 0));
-        startGameTimer();
 
         m_engine = Engine.getInstance(GameSessionActivity.this);
         m_engine.setCallback(this);
 
+        m_engine.startGameTimer();
         m_engine.getRandomQuestion();
 
         m_listViewAnswers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,35 +66,6 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
         });
     }
 
-    public void startGameTimer() {
-        m_gameTimeLeft = INITIAL_GAME_TIME;
-
-        final Handler handler = new Handler();
-        final Timer timer = new Timer(false);
-
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        m_gameTimeLeft--;
-                        // set progress as percentage
-                        float relativeProgress = (float) m_gameTimeLeft
-                                / (float) INITIAL_GAME_TIME * 100.f;
-
-                        m_progressBarGameTime.setProgress((int) relativeProgress);
-                        if (m_gameTimeLeft <= 0) {
-                            openCredentialsActivity();
-                            timer.cancel();
-                        }
-                    }
-                });
-            }
-        };
-        timer.schedule(timerTask, 1000, 1000);
-    }
-
     public void openCredentialsActivity() {
         Intent intent = new Intent(this, CredentialsActivity.class);
         intent.putExtra("labelText", getString(R.string.game_over)
@@ -109,13 +77,29 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == CredentialsActivity.CREDENTIALS_RESULT_CODE_OK) {
-            String nickname = data.getStringExtra("nickname");
-            String email = data.getStringExtra("email");
-            m_engine.postHighScoreInfo(nickname, email);
-        } else {
-            finish();
+        if (requestCode == CREDENTIALS_REQUEST_CODE) {
+            if (resultCode == CredentialsActivity.CREDENTIALS_RESULT_CODE_OK) {
+                String nickname = data.getStringExtra("nickname");
+                String email = data.getStringExtra("email");
+                m_engine.postHighScoreInfo(nickname, email);
+            } else {
+                GameSessionActivity.this.finish();
+            }
         }
+    }
+
+    @Override
+    public void onGameTimerTick(final boolean finished, final int relativeProgress) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (finished) {
+                    openCredentialsActivity();
+                } else {
+                    m_progressBarGameTime.setProgress(relativeProgress);
+                }
+            }
+        });
     }
 
     @Override
@@ -175,5 +159,10 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
                 GameSessionActivity.this.finish();
             }
         });
+    }
+
+    @Override
+    public void onParseResponseGetAllHighScores(final List<HighScore> highScores) {
+        // unused
     }
 }

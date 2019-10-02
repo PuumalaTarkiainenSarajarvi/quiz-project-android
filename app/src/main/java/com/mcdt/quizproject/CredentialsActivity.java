@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class CredentialsActivity extends AppCompatActivity implements View.OnClickListener
 {
-    public static final int CREDENTIALS_RESULT_CODE_OK = 0;
+    public static final int CREDENTIALS_RESULT_CODE_OK = 1;
     private TextView m_textViewCredentialsLabel;
     private EditText m_editTextNickname;
     private EditText m_editTextEmail;

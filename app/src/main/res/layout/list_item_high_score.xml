@@ -16,7 +16,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="@string/placeholder_text"
-            android:textAlignment="center"
+            android:textAlignment="textStart"
             android:textSize="24sp" />
 
         <TextView
@@ -26,7 +26,17 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="@string/placeholder_text"
-            android:textAlignment="center"
+            android:textAlignment="textStart"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textViewListItem3"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/placeholder_text"
+            android:textAlignment="textEnd"
             android:textSize="24sp" />
 
     </LinearLayout>

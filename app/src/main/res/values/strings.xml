@@ -13,4 +13,7 @@
     <string name="button_submit">Submit</string>
 
     <string name="game_over">Game Over!</string>
+
+    <string name="world_best">World</string>
+    <string name="personal_best">Personal</string>
 </resources>
