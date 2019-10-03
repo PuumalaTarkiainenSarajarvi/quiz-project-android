@@ -18,4 +18,10 @@ public class HighScore
     public List<String> getItems() {
         return m_items;
     }
+
+    public void setItemValue(final int index, final String value) {
+        // assert valid range for index
+        assert 0 <= index && index <= 2;
+        m_items.set(index, value);
+    }
 }

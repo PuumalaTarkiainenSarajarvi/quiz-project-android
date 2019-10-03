@@ -221,6 +221,11 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
                             .compareTo(Integer.valueOf(h1.getItems().get(2)));
                 }
             });
+            // add new values for index row
+            for (HighScore score : highScores)
+                score.setItemValue(0,
+                        String.valueOf(highScores.indexOf(score) + 1) + ".");
+
             m_callback.onParseResponseGetAllHighScores(highScores);
         } catch (final JSONException e) {
             Log.e("JSON", "JSON parsing error: " + e.getMessage());
