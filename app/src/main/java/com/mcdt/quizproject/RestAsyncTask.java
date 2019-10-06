@@ -57,25 +57,6 @@ public class RestAsyncTask
         m_queue.add(jsonObjectRequest);
     }
 
-    public void addArrayRequestToQueue(final String baseUrl, final String requestId, final int method) {
-        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                (method, baseUrl + requestId, null, new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        if (m_callback != null) {
-                            m_callback.requestDone(requestId, response);
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("VOLLEY", "onErrorResponse: " + error);
-                    }
-                });
-        m_queue.add(jsonArrayRequest);
-    }
-
     public void addObjectRequestToQueue(final String baseUrl, final String requestId, final int method
             , final String sessionId) {
         Log.d("VOLLEY", "addRequestToQueue: " + requestId);
@@ -120,17 +101,61 @@ public class RestAsyncTask
                         Log.d("VOLLEY", "onErrorResponse: " + error);
                     }
                 }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Authorization", sessionId);
-                return headers;
-            }
-            @Override
-            public byte[] getBody() {
-                return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
-            }
-        };
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        HashMap<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", sessionId);
+                        return headers;
+                    }
+                    @Override
+                    public byte[] getBody() {
+                        return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+                    }
+                };
         m_queue.add(jsonObjectRequest);
+    }
+
+    public void addArrayRequestToQueue(final String baseUrl, final String requestId, final int method) {
+        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                (method, baseUrl + requestId, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        if (m_callback != null) {
+                            m_callback.requestDone(requestId, response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("VOLLEY", "onErrorResponse: " + error);
+                    }
+                });
+        m_queue.add(jsonArrayRequest);
+    }
+
+    public void addArrayRequestToQueue(final String baseUrl, final String requestId, final int method
+            , final String requestBody) {
+        Log.d("VOLLEY", "addRequestToQueue: " + requestId);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                (method, baseUrl + requestId, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        if (m_callback != null) {
+                            m_callback.requestDone(requestId, response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("VOLLEY", "onErrorResponse: " + error);
+                    }
+                }) {
+                    @Override
+                    public byte[] getBody() {
+                        return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+                    }
+                };
+        m_queue.add(jsonArrayRequest);
     }
 }

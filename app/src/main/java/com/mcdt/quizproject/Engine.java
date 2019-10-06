@@ -27,6 +27,7 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     private static final String API_BASE_URL = "http://10.0.2.2:5000";
     private static final String GET_RANDOM_QUESTION = "/api/get_random_question";
     private static final String GET_ALL_HIGH_SCORES = "/api/get_all_high_scores";
+    private static final String GET_PERSONAL_BESTS = "/api/get_personal_bests";
     private static final String POST_HIGH_SCORE_INFO = "/api/post_high_score_info";
     private static final String CHECK_CORRECT_ANSWER = "/api/check_correct_answer";
     private static final String START_GAME_SESSION = "/api/start_game_session";
@@ -70,6 +71,7 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
         void onParseResponseCheckCorrectAnswer(final boolean status, final int currentScore);
         void onParseResponsePostHighScoreInfo();
         void onParseResponseGetAllHighScores(final List<HighScore> highScores);
+        void onParseResponseGetPersonalBests(final List<HighScore> highScores);
     }
 
     public int getPlayerScore() {
@@ -232,6 +234,63 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
         }
     }
 
+    public void getPersonalBests(final String email) {
+        Log.d("ENGINE", "getPersonalBests: called");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String requestBody = jsonObject.toString();
+
+        RestAsyncTask restAsyncTask = new RestAsyncTask(m_context, this);
+        restAsyncTask.addArrayRequestToQueue(
+                API_BASE_URL, GET_PERSONAL_BESTS, Request.Method.POST, requestBody);
+    }
+
+    public void parseResponseGetPersonalBests(final JSONArray response) {
+        try {
+            List<HighScore> highScores = new ArrayList<>();
+
+            JSONObject child = response.getJSONObject(0);
+            JSONArray tenBestScores = child.getJSONArray("tenBestScores");
+
+            for (int i = 0; i < tenBestScores.length(); i++) {
+                JSONObject scoreChild = tenBestScores.getJSONObject(i);
+                // Format only date to be shown
+                String date = scoreChild.getString("date");
+                int index = date.indexOf("T");
+
+                HighScore tempScore = new HighScore(
+                        String.valueOf(i) + ".",
+                        date.substring(0, index).replace("-", "."),
+                        scoreChild.getString("score"));
+
+                highScores.add(tempScore);
+            }
+            Collections.sort(highScores, new Comparator<HighScore>() {
+                @Override
+                public int compare(HighScore h1, HighScore h2) {
+                    return Integer.valueOf(h2.getItems().get(2))
+                            .compareTo(Integer.valueOf(h1.getItems().get(2)));
+                }
+            });
+            // add new values for index row
+            for (HighScore score : highScores)
+                score.setItemValue(0,
+                        String.valueOf(highScores.indexOf(score) + 1) + ".");
+
+            // Add a "heading" containing user information
+            highScores.add(0, new HighScore(child.getString("nickname"),
+                    "", child.getString("email")));
+
+            m_callback.onParseResponseGetPersonalBests(highScores);
+        } catch (final JSONException e) {
+            Log.e("JSON", "JSON parsing error: " + e.getMessage());
+        }
+    }
+
     @Override
     public void requestDone(final String requestId, JSONObject response) {
         Log.d("VOLLEY", "requestDone: " + response.toString());
@@ -259,6 +318,8 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
         switch (requestId) {
             case GET_ALL_HIGH_SCORES:
                 parseResponseGetAllHighScores(response);
+            case GET_PERSONAL_BESTS:
+                parseResponseGetPersonalBests(response);
             default:
                 break;
         }

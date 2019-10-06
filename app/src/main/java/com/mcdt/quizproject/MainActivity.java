@@ -62,11 +62,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onGameTimerTick(boolean finished, int relativeProgress) {
-        // unused
-    }
-
-    @Override
     public void onParseResponseStartGameSession(final String sessionId) {
         if (sessionId != null) {
             runOnUiThread(new Runnable() {
@@ -81,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+/*
+    ##### UNUSED #####
+ */
     @Override
     public void onParseResponseGetRandomQuestion(Question question) {
         // unused
@@ -98,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onParseResponseGetAllHighScores(final List<HighScore> highScores) {
+        // unused
+    }
+
+    @Override
+    public void onParseResponseGetPersonalBests(final List<HighScore> highScores) {
+        // unused
+    }
+
+    @Override
+    public void onGameTimerTick(boolean finished, int relativeProgress) {
         // unused
     }
 }

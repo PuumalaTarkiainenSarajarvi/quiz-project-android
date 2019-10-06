@@ -16,4 +16,5 @@
 
     <string name="world_best">World</string>
     <string name="personal_best">Personal</string>
+    <string name="email_null_toast">No existing scores found. Go and play a game first!</string>
 </resources>

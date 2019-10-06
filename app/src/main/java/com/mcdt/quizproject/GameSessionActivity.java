@@ -103,11 +103,6 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
     }
 
     @Override
-    public void onParseResponseStartGameSession(String sessionId) {
-        // unused
-    }
-
-    @Override
     public void onParseResponseGetRandomQuestion(final Question question) {
         runOnUiThread(new Runnable() {
             @Override
@@ -161,8 +156,21 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
         });
     }
 
+/*
+    ##### UNUSED #####
+ */
     @Override
     public void onParseResponseGetAllHighScores(final List<HighScore> highScores) {
+        // unused
+    }
+
+    @Override
+    public void onParseResponseGetPersonalBests(final List<HighScore> highScores) {
+        // unused
+    }
+
+    @Override
+    public void onParseResponseStartGameSession(String sessionId) {
         // unused
     }
 }
