@@ -24,7 +24,7 @@ public class Engine implements RestAsyncTask.OnRequestProgressUpdate
     private static final int INITIAL_GAME_TIME = 60;
 
     // API endpoints declaration
-    private static final String API_BASE_URL = "http://10.0.2.2:5000";
+    private static final String API_BASE_URL = "https://quiz-project-api.herokuapp.com";
     private static final String GET_RANDOM_QUESTION = "/api/get_random_question";
     private static final String GET_ALL_HIGH_SCORES = "/api/get_all_high_scores";
     private static final String GET_PERSONAL_BESTS = "/api/get_personal_bests";

@@ -26,6 +26,8 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
 
     private Question m_currentQuestion = null;
 
+    private boolean m_itemClickEnabled = true;
+
     private ProgressBar m_progressBarGameTime;
     private TextView m_textViewCurrentScore;
     private TextView m_textViewQuestionDifficulty;
@@ -56,11 +58,13 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
         m_listViewAnswers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (m_currentQuestion != null) {
+                if (m_currentQuestion != null && m_itemClickEnabled) {
                     String questionId = m_currentQuestion.getId();
                     String answer = m_listViewAnswers.getItemAtPosition(position).toString();
 
+                    // temporarily disable onClick for items to prevent multiple request
                     m_engine.checkCorrectAnswer(questionId, answer);
+                    m_itemClickEnabled = false;
                 }
             }
         });
@@ -139,8 +143,9 @@ public class GameSessionActivity extends AppCompatActivity implements Engine.Eng
                 else
                     m_textViewCurrentScore.setTextColor(Color.RED);
 
-                // now request a new question
+                // now request a new question & enable onClick for list items
                 m_engine.getRandomQuestion();
+                m_itemClickEnabled = true;
             }
         });
     }

@@ -40,12 +40,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Engine.resetInstance();
         m_engine = Engine.getInstance(MainActivity.this);
         m_engine.setCallback(this);
+
+        m_buttonPlay.setEnabled(true);
     }
 
     @Override
     public void onClick(View v) {
         if (v == m_buttonPlay) {
             m_engine.startGameSession();
+            m_buttonPlay.setEnabled(false);
         } else if (v == m_buttonScores) {
             startHighScoreActivity();
         }
@@ -53,11 +56,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void startGameSessionActivity() {
         Intent intent = new Intent(this, GameSessionActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 
     public void startHighScoreActivity() {
         Intent intent = new Intent(this, HighScoreActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 
