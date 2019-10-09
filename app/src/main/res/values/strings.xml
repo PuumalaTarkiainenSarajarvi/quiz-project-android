@@ -1,0 +1,20 @@
+<resources>
+    <string name="placeholder_text">Example text</string>
+    <string name="app_name">Quiz Project</string>
+    <string name="button_play">Play</string>
+    <string name="button_scores">High Scores</string>
+
+    <string name="current_score">Current score: %d</string>
+    <string name="difficulty">Difficulty: %s</string>
+    <string name="category">Category: %s</string>
+
+    <string name="hint_nickname">Nickname</string>
+    <string name="hint_email">Email</string>
+    <string name="button_submit">Submit</string>
+
+    <string name="game_over">Game Over!</string>
+
+    <string name="world_best">World</string>
+    <string name="personal_best">Personal</string>
+    <string name="email_null_toast">No existing scores found. Go and play a game first!</string>
+</resources>
